@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div class="sidebar">
+  <div class="top"></div>
+    <?php
+      session_start();
+
+      if (!isset($_SESSION['username'])) {
+        header('location: emp_login.php');
+      }
+
+      include 'connect.php';
+
+      $username = $_SESSION['username'];
+
+      $sql = "SELECT first_name, last_name FROM employee WHERE username = '$username'";
+      $result = mysqli_query($conn, $sql);
+
+      if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $employee_name = $row['first_name'] . " " . $row['last_name'];
+      } else {
+        echo "Error: " . mysqli_error($conn);
+      }
+    ?>
+    <h2><?php echo $employee_name; ?></h2>
+    <ul class="nav">
+      <li>
+        <a href="profile.php">
+          <i class="fa fa-user fa" aria-hidden="true"></i>
+          <span>My Profile</span>
+        </a>
+      </li>
+      <li>
+        <a href="Attendance.php">
+          <i class="fa fa-list-alt" aria-hidden="true"></i>
+          <span>Attendance</span>
+        </a>
+      </li>
+      <li>
+        <a href="emp_login.php" onclick="return confirm('Are you sure you want to logout?')">
+          <i class="fa fa-sign-out" aria-hidden="true"></i>
+          <span>Logout</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <?php
+
+    if (!isset($_SESSION['username'])) {
+      header('location: emp_login.php');
+    }
+
+    include 'connect.php';
+
+    $username = $_SESSION['username'];
+
+    $sql = "SELECT * FROM employee WHERE username = '$username'";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+      $row = mysqli_fetch_assoc($result);
+    } else {
+      echo "Error: " . mysqli_error($conn);
+    }
+  ?>
+
+<div class="emp-main">
+<a href="profile.php"><input type="button" class="back-button" value="Back"></a>
+    <form method="POST" action="update_profile.php" class="form-card" enctype="multipart/form-data">
+    <input type="hidden" name="username" value="<?php echo $row['username']; ?>" required><br>
+    <div class="column">
+    <div class="input-box">
+         <label for="image">Profile Image:</label>
+        <input type="file" name="image">
+</div>
+        <div class="input-box">
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" value="<?php echo $row['first_name']; ?>" required>
+</div>
+</div>
+<div class="column">
+<div class="input-box">
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" value="<?php echo $row['last_name']; ?>" required>
+</div>
+<div class="input-box">
+        <label for="email">Email:</label>
+        <input type="text" name="email" value="<?php echo $row['email']; ?>" required>
+</div>
+</div>
+   <div class="column">
+<div class="input-box">
+        <label for="mobile">Mobile:</label>
+        <input type="text" name="mobile" value="<?php echo $row['mobile']; ?>" required>
+</div>
+<div class="input-box">
+        <label for="dob">Date of Birth:</label>
+        <input type="date" name="dob" value="<?php echo $row['dob']; ?>" required>
+</div>
+</div>   
+      <input type="submit" class="add-button" onclick="return confirm('Are you sure you want to save this?')" value="Save">
+    </form>
+  </div>
+</body>
+</html>
