@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Attendance Management System</title>
+  <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  <div class="sidebar">
+        <a href="#">
+            <i class="fa fa-user fa-4x" aria-hidden="true"></i>
+        </a>
+        <h2>Admin</h2>
+        <ul class="nav">
+            <li>
+                <a href="Dashboard.php">
+                    <i class="fa fa-home" aria-hidden="true"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="Employee.php">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    <span>Employee</span>
+                </a>
+            </li>
+            <li>
+                <a href="Department.php">
+                    <i class="fa fa-building-o" aria-hidden="true"></i>
+                    <span>Department</span>
+                </a>
+            </li>
+            <li>
+                <a href="Shift.php">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                    <span>Shift</span>
+                </a>
+            </li>
+            <li>
+                <a href="Report.php">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                    <span>Report</span>
+                </a>
+            </li>
+            <li>
+            <a href="admin.html" onclick="return confirm('Are you sure you want to logout?')">
+          <i class="fa fa-sign-out" aria-hidden="true"></i>
+          <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+
+    </div>
+  <div class="dept-main">
+
+<?php
+// Create a connection to the database
+$conn = mysqli_connect("localhost", "root", "", "block_c");
+
+// Check connection
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Check if the form is submitted with the dept ID
+if (isset($_GET['dept_id'])) {
+    $dept_id = $_GET['dept_id'];
+
+    // Fetch the shift details from the database
+    $sql = "SELECT * FROM department WHERE dept_id = $dept_id";
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        die("Error: " . $sql . "<br>" . mysqli_error($conn));
+    }
+
+    // Check if the shift with the specified ID exists
+    if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        // Render the edit form with pre-filled data
+        ?>
+    
+            <form action="update_dept.php" method="post" class="edit-dept-form">
+            <h2>EDIT DEPARTMENT</h2>
+                <!-- Add form fields with pre-filled data -->
+                <input type="hidden" name="dept_id" value="<?php echo $row['dept_id']; ?>">
+                <div class="input-box">
+                <label for="dept_name" id="dept-name">Department Name</label>
+                <input type="text" name="dept_name" value="<?php echo $row['dept_name']; ?>" required>
+                </div>
+                <div class="column-button">
+                <a href="Department.php"><input type="submit" class="edit-btn" value="Cancel"></a>
+                <input type="submit" class="edit-btn" onclick='return confirm("Save Changes?")' value="Save">
+                </div>
+            </form>
+            </div>
+        </body>
+        </html>
+        <?php
+    } else {
+        echo "Department not found.";
+    }
+}
+
+// Close the connection
+mysqli_close($conn);
+?>
