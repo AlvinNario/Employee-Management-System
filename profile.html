@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile</title>
+  <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  <div class="sidebar">
+  <div class="top"></div>
+    <?php
+      session_start();
+
+      if (!isset($_SESSION['username'])) {
+        header('location: emp_login.php');
+      }
+
+      include 'connect.php';
+
+      $username = $_SESSION['username'];
+
+      $sql = "SELECT first_name, last_name FROM employee WHERE username = '$username'";
+      $result = mysqli_query($conn, $sql);
+
+      if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $employee_name = $row['first_name'] . " " . $row['last_name'];
+      } else {
+        echo "Error: " . mysqli_error($conn);
+      }
+    ?>
+    <h2><?php echo $employee_name; ?></h2>
+    <ul class="nav">
+      <li>
+        <a href="profile.php">
+          <i class="fa fa-user fa" aria-hidden="true"></i>
+          <span>My Profile</span>
+        </a>
+      </li>
+      <li>
+        <a href="Attendance.php">
+          <i class="fa fa-list-alt" aria-hidden="true"></i>
+          <span>Attendance</span>
+        </a>
+      </li>
+      <li>
+        <a href="emp_login.php" onclick="return confirm('Are you sure you want to logout?')">
+          <i class="fa fa-sign-out" aria-hidden="true"></i>
+          <span>Logout</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <?php
+    if (!isset($_SESSION['username'])) {
+      header('location: emp_login.php');
+    }
+
+    include 'connect.php';
+
+    $username = $_SESSION['username'];
+
+    $sql = "SELECT * FROM employee WHERE username = '$username'";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+      $row = mysqli_fetch_assoc($result);
+    } else {
+      echo "Error: " . mysqli_error($conn);
+    }
+
+   ?>
+<div class="main">
+<div class="profile-container">
+  <div class="left">
+<img src="images/<?php echo $row['image']; ?>" alt="Profile Image" class="profile-image">
+<h3><?php echo $row['first_name'] . " " . $row['last_name']; ?><h3>
+<a href="mailto:<?php echo $row['email']; ?>">
+    <i class="fa fa-comments" aria-hidden="true"></i>
+  </a>
+  <a href="edit_profile.php">
+    <i class="fa fa-pencil" aria-hidden="true"></i>
+  </a>
+  </div>
+    <div class="profile-info">
+    <div class="profile-data">
+      <h2>Information</h2>
+        <div class="profile-item">
+        <h3>Username:</h3>
+            <h4><?php echo $row['username']; ?></h4>
+        </div>
+        <div class="profile-item">
+        <h3>Email:</h3>
+        <h4><?php echo $row['email']; ?></h4>
+        </div>
+        <div class="profile-item">
+        <h3>Mobile:</h3>
+        <h4><?php echo $row['mobile']; ?></h4>
+        </div>
+        <div class="profile-item">
+        <h3>Date of Birth:</h3>
+        <h4><?php echo $row['dob']; ?></h4>
+        </div>
+    </div>
+</div>
+  </div>
+</body>
+</html>

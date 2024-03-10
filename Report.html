@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance Management System</title>
+    <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <a href="#">
+            <i class="fa fa-user fa-4x" aria-hidden="true"></i>
+        </a>
+        <h2>Admin</h2>
+        <ul class="nav">
+            <li>
+                <a href="Dashboard.php">
+                    <i class="fa fa-home" aria-hidden="true"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="Employee.php">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    <span>Employee</span>
+                </a>
+            </li>
+            <li>
+                <a href="Department.php">
+                    <i class="fa fa-building-o" aria-hidden="true"></i>
+                    <span>Department</span>
+                </a>
+            </li>
+            <li>
+                <a href="Shift.php">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                    <span>Shift</span>
+                </a>
+            </li>
+            <li>
+                <a href="Report.php">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                    <span>Report</span>
+                </a>
+            </li>
+            <li>
+            <a href="admin.html" onclick="return confirm('Are you sure you want to logout?')">
+          <i class="fa fa-sign-out" aria-hidden="true"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+
+    </div>
+    <div class="report-main">
+        <h1>LOGIN REPORT</h1>
+        <!-- Date Range Form -->
+        <form method="post" action="Report.php">
+            <div class="report">
+            <label for="fromDate" id="fromdate">From Date:</label>
+            <input type="date" id="fromDate" name="fromDate" required>
+
+            <label for="toDate" id="todate">To Date:</label>
+            <input type="date" id="toDate" name="toDate" required>
+
+            <button type="submit" name="generateReport" class="genreport">Generate Report</button>
+            <!-- Print/Export Button -->
+            </div>
+        </form>
+
+        <?php
+        include 'connect.php';
+
+        date_default_timezone_set('Asia/Manila');
+        $current_time = date('h:i:s A');
+
+        // Check if the form is submitted
+        if (isset($_POST['generateReport'])) {
+            // Get the selected date range
+            $fromDate = $_POST['fromDate'];
+            $toDate = $_POST['toDate'];
+
+            // Assuming your atlog table structure
+            $sql = "SELECT e.first_name, e.last_name, e.department_name, e.shift_time, a.atlog_date,
+                           a.am_in, a.am_out, a.am_late, a.am_undertime,
+                           a.pm_in, a.pm_out, a.pm_late, a.pm_undertime
+                    FROM atlog a
+                    INNER JOIN employee e ON a.emp_id = e.id
+                    WHERE a.atlog_date BETWEEN '$fromDate' AND '$toDate'
+                    ORDER BY a.atlog_date DESC";
+
+            $result = mysqli_query($conn, $sql);
+
+            if (!$result) {
+                die("Error fetching data: " . mysqli_error($conn));
+            }
+        ?>
+        <table border="1">
+            <tr>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Shift Time</th>
+                <th>Date</th>
+                <th>AM In</th>
+                <th>AM Out</th>
+                <th>AM Late</th>
+                <th>AM Undertime</th>
+                <th>PM In</th>
+                <th>PM Out</th>
+                <th>PM Late</th>
+                <th>PM Undertime</th>
+            </tr>
+            
+            <?php
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo "<tr>";
+                echo "<td>{$row['first_name']} {$row['last_name']}</td>";
+                echo "<td>{$row['department_name']}</td>";
+                echo "<td>{$row['shift_time']}</td>";
+                echo "<td>{$row['atlog_date']}</td>";
+                echo "<td>{$row['am_in']}</td>";
+                echo "<td>{$row['am_out']}</td>";
+                echo "<td>" . ($row['am_late'] == 1 ? 'Late' : 'On-time') . "</td>";
+                echo "<td>" . ($row['am_undertime'] == 1 ? 'Early' : 'Overtime') . "</td>";
+                echo "<td>{$row['pm_in']}</td>";
+                echo "<td>{$row['pm_out']}</td>";
+                echo "<td>" . ($row['pm_late'] == 1 ? 'Late' : 'On-time') . "</td>";
+                echo "<td>" . ($row['pm_undertime'] == 0 ? 'Early' : 'Overtime') . "</td>";
+                echo "</tr>";
+            }
+            ?>
+        </table>
+        <?php
+        } // end if isset('generateReport')
+        ?>
+</body>
+</html>
